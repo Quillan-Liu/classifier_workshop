@@ -28,6 +28,7 @@ def chart(request: ChartRequest):
     return Response(probability_chart([item.model_dump() for item in request.items]),
                     media_type="image/svg+xml", headers={"Cache-Control": "no-store"})
 
+@router.get("/", include_in_schema=False)
 @router.get("/inference", include_in_schema=False)
 def page():
     """返回推理页面。

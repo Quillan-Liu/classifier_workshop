@@ -27,7 +27,7 @@ def model_options():
                 "zh_to_en": PURPOSE_ZH_TO_EN}
 
 
-@router.get("/", include_in_schema=False)
+@router.get("/model-management", include_in_schema=False)
 def management_page():
     """返回模型管理页面的 HTML 文件响应。
 

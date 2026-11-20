@@ -1,4 +1,4 @@
-"""沿用 bert.src 的分类模型与 PyTorch 训练循环。"""
+"""使用 train.my_model 分类网络的 PyTorch 训练循环。"""
 
 from ..logging import log_call as _log_call
 
@@ -84,7 +84,7 @@ class BertTrainer(BaseTrainer):
             import torch
             from torch.utils.data import DataLoader
             from transformers import BertModel, BertTokenizer
-            from bert.src.bert_classifier_model import BertClassifierModel
+            from ..my_model import BertClassifierModel
             from ..evaluator import _read_tsv
 
             cfg = get_config("bert", self.spec.params)

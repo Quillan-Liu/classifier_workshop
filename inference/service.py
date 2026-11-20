@@ -58,7 +58,7 @@ def predict(record, text):
         max_length = 512
         if custom:
             from transformers import BertConfig, BertModel
-            from bert.src.bert_classifier_model import BertClassifierModel
+            from train.my_model import BertClassifierModel
             metadata = json.loads((weights / "classifier.json").read_text(encoding="utf-8"))
             model = BertClassifierModel(BertModel(BertConfig.from_pretrained(str(weights))), len(metadata["class_names"]))
             model.load_state_dict(torch.load(weights / "classifier.pt", map_location="cpu", weights_only=True))

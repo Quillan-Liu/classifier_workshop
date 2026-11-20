@@ -1,4 +1,4 @@
-"""主流程：读取 -> 清洗 -> 去重 -> 划分 -> 按用途导出。"""
+"""主流程：读取 -> 清洗 -> 划分 -> 按用途导出。"""
 
 from ..logging import log_call as _log_call, get_logger
 
@@ -133,54 +133,6 @@ def _clean(groups, mapping):
         return cleaned
 
 
-SPLIT_PRIORITY = ("test", "dev", "train")  # 重复文本优先留在评估集，污染的训练样本被丢弃
-
-
-def _dedupe(groups, allow_conflicts):
-    """按 test、dev、train 优先级去重，避免评估文本泄漏到训练集。
-
-    Args:
-        groups: 按分组组织的 (文本, 标签) 样本字典。
-        allow_conflicts: 是否容许同一文本有多个标签；容许时保留优先遇到的标签。
-
-    Returns:
-        二元组 (去重后的分组, 去重统计)；不允许的标签冲突抛出 ValueError。
-
-    Raises:
-        ValueError: 同一文本标签冲突，且未允许保留首次标签。
-    """
-    with _log_call("train.dataset.pipeline._dedupe", locals()):
-        conflicts = []
-        stats = {"within_split": 0, "cross_split": 0}
-        owner = {}
-        kept = {}
-        ordered = [s for s in SPLIT_PRIORITY if s in groups]
-        ordered += [s for s in groups if s not in SPLIT_PRIORITY]
-
-        for split in ordered:
-            rows = []
-            for text, label in groups[split]:
-                owner_split, owner_label = owner.get(text, (None, None))
-                if owner_split is None:
-                    owner[text] = (split, label)
-                    rows.append((text, label))
-                elif owner_label != label:
-                    conflicts.append((text, owner_label, label))
-                elif owner_split == split:
-                    stats["within_split"] += 1
-                else:
-                    stats["cross_split"] += 1
-            kept[split] = rows
-
-        if conflicts and not allow_conflicts:
-            preview = "\n".join(f"  {t!r}: {a} vs {b}" for t, a, b in conflicts[:10])
-            raise ValueError(
-                f"发现 {len(conflicts)} 条文本存在多个标签（同一句话被标成不同类），"
-                f"前 10 条:\n{preview}\n确认无误可加 --allow-conflicts 保留首次出现的标签。"
-            )
-        return {split: rows for split, rows in kept.items() if rows}, stats
-
-
 def _ensure_splits(groups, dev_ratio, test_ratio, seed):
     """保留已有分组，缺少验证集或测试集时从训练样本中切分。
 
@@ -213,13 +165,12 @@ def prepare(
     test_ratio=DEFAULT_TEST_RATIO,
     seed=DEFAULT_SEED,
     stopwords=None,
-    allow_conflicts=False,
     verbose=True,
     test_input=None,
     word_level=False,
     tfidf_max_features=None,
 ):
-    """读取、清洗、去重和划分数据，按训练类型导出文件并写入 manifest.json。
+    """读取、清洗和划分数据，保留重复文本及其原始标签，按训练类型导出文件并写入 manifest.json。
 
     Args:
         input_path: 原始训练数据文件或目录路径。
@@ -230,17 +181,16 @@ def prepare(
         test_ratio: 缺少独立测试集时划出测试集的比例。
         seed: 用于数据划分或训练的随机种子。
         stopwords: RF 停用词文件路径；None 时尝试默认停用词文件。
-        allow_conflicts: 是否容许同一文本有多个标签；容许时保留优先遇到的标签。
         verbose: 是否将数据准备摘要打印到终端。
         test_input: 独立测试数据文件或目录；None 时按比例划分测试集。
         word_level: fastText 是否使用词级分词；False 使用字符级。
         tfidf_max_features: RF 词表最大特征数；None 表示不限制。
 
     Returns:
-        包含类别、划分数量、去重统计及产物信息的 manifest 字典。
+        包含类别、划分数量及产物信息的 manifest 字典。
 
     Raises:
-        ValueError: 类别映射、标签冲突、测试类别或数据划分不符合要求。
+        ValueError: 类别映射、测试类别或数据划分不符合要求。
     """
     with _log_call("train.dataset.pipeline.prepare", locals()):
         uses = _normalize_uses(use)
@@ -264,7 +214,6 @@ def prepare(
             if unseen:
                 raise ValueError(f"测试集里有训练集没出现过的类别: {sorted(unseen)}")
 
-        cleaned, dedupe_stats = _dedupe(cleaned, allow_conflicts)
         splits = _ensure_splits(cleaned, dev_ratio, test_ratio, seed)
 
         out_dir.mkdir(parents=True, exist_ok=True)
@@ -290,7 +239,6 @@ def prepare(
                 name: dict(sorted(Counter(label for _, label in rows).items()))
                 for name, rows in splits.items()
             },
-            "dropped_duplicates": dedupe_stats,
             "artifacts": artifacts,
         }
         (out_dir / "manifest.json").write_text(
@@ -299,7 +247,7 @@ def prepare(
         if verbose:
             print(f"数据集: {source}")
             print(f"类别({len(classes)}): {classes}")
-            print(f"划分: {manifest['rows']}  去重: {dedupe_stats}")
+            print(f"划分: {manifest['rows']}")
             print(f"输出: {out_dir.resolve()}")
             for purpose, info in artifacts.items():
                 print(f"  [{purpose}] {info}")

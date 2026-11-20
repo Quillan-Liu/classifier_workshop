@@ -237,7 +237,7 @@ def _predict_bert(model_path: Path, test_dir: Path):
         max_length = EVAL_MAX_LENGTH
         if custom:
             from transformers import BertConfig, BertModel
-            from bert.src.bert_classifier_model import BertClassifierModel
+            from .my_model import BertClassifierModel
 
             metadata = json.loads((weights_dir / "classifier.json").read_text(encoding="utf-8"))
             model = BertClassifierModel(BertModel(BertConfig.from_pretrained(str(weights_dir))),

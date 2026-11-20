@@ -9,13 +9,20 @@ pip install -r requirements.txt
 python start.py
 ```
 
-默认后端地址为 `http://127.0.0.1:8008`：
+默认监听 `0.0.0.0:8008`，本机访问 `http://127.0.0.1:8008`，
+局域网其他机器访问 `http://<服务所在机器的局域网 IPv4 地址>:8008`：
 
 - `/training`：训练工作室。
 - `/`：模型管理。
 - `/inference`：模型推理。
 
 项目包含 Windows Redis 程序，随后端启动、关闭。
+
+在服务所在机器运行 `ipconfig`，查看当前联网网卡的 IPv4 地址。
+修改后需要重启服务；如果其他机器仍无法连接，请在 Windows 防火墙中允许
+TCP 8008 端口入站（范围限定为本地子网）。接口文档地址为 `/docs`。
+导出的 `openapi.json` 使用相对服务地址，导入 Apifox 后请将环境 Base URL
+设为实际访问地址。只允许本机访问时，可使用 `python start.py --host 127.0.0.1`。
 
 ## BERT 基座模型
 

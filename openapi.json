@@ -844,8 +844,8 @@
   },
   "servers": [
     {
-      "url": "http://127.0.0.1:8008",
-      "description": "本机训练服务"
+      "url": "/",
+      "description": "当前服务"
     }
   ]
 }

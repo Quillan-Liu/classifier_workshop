@@ -6,8 +6,8 @@
     python start.py --port 8007    # 临时换端口
 
 服务起来后：
-    http://127.0.0.1:8006/docs     Swagger 调试页
-    http://127.0.0.1:8006/redoc    Redoc 文档
+    http://127.0.0.1:8008/docs     Swagger 调试页
+    http://127.0.0.1:8008/redoc    Redoc 文档
 """
 
 import argparse
@@ -56,8 +56,8 @@ def export_openapi(path: Path = OPENAPI_PATH, host: str = SERVER_HOST,
     app.openapi_version = "3.0.2"
     schema = app.openapi()
     _downgrade_nullable(schema)
-    # 写死服务地址，Apifox 导入后 Base URL 直接用，不用手改
-    schema["servers"] = [{"url": f"http://{host}:{port}", "description": "本机训练服务"}]
+    # 跟随访问地址，局域网客户端调试时不会请求自己的 localhost。
+    schema["servers"] = [{"url": "/", "description": "当前服务"}]
     path = Path(path)
     path.parent.mkdir(parents=True, exist_ok=True)
     path.write_text(json.dumps(schema, ensure_ascii=False, indent=2), encoding="utf-8")

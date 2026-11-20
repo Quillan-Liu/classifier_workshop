@@ -125,7 +125,7 @@ EVAL_METRICS_FILENAME = "eval_metrics.json"
 
 # ---------- 服务 ----------
 
-SERVER_HOST = "127.0.0.1"
+SERVER_HOST = "0.0.0.0"
 SERVER_PORT = 8008
 OPENAPI_PATH = PROJECT_DIR / "openapi.json"
 

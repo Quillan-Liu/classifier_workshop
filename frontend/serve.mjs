@@ -11,11 +11,11 @@ export function createFrontend(kind, backend = 'http://127.0.0.1:8008') {
   if (api.protocol !== 'http:') throw new Error('Backend must use http://');
   return http.createServer(async (request, response) => {
     const pathname = new URL(request.url, 'http://localhost').pathname;
-    if (request.method === 'GET' && (pathname === '/' || pathname === '/training' && kind === 'training' || pathname === '/inference' && kind === 'inference')) {
+    if (request.method === 'GET' && (pathname === '/' || pathname === '/training' && kind === 'training' || pathname === '/inference' && kind === 'inference' || pathname === '/model-management' && kind === 'model_management')) {
       try {
         let html = await readFile(new URL(`./${kind}/index.html`, import.meta.url), 'utf8');
-        // 用唯一占位符一次替换，避免将当前页的 / 再次误写成模型管理地址。
-        html = html.replace(/href="(\/inference|\/training|\/)"/g, (_, path) => {
+        // 用唯一占位符一次替换，将导航路径映射到对应的独立前端端口。
+        html = html.replace(/href="(\/inference|\/training|\/model-management)"/g, (_, path) => {
           const target = path === '/inference' ? 'inference' : path === '/training' ? 'training' : 'model_management';
           return `href="${target === kind ? '/' : `http://127.0.0.1:${ports[target]}/`}"`;
         });

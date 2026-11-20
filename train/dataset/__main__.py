@@ -50,7 +50,6 @@ def build_parser():
         parser.add_argument("--test-ratio", type=float, default=DEFAULT_TEST_RATIO, help="无 test 时从 train 切的比例")
         parser.add_argument("--seed", type=int, default=DEFAULT_SEED, help="切分随机种子")
         parser.add_argument("--stopwords", default=None, help="RF 的停用词表路径")
-        parser.add_argument("--allow-conflicts", action="store_true", help="允许同一文本多个标签（保留首次出现）")
         return parser
 
 
@@ -74,7 +73,6 @@ def main(argv=None):
             test_ratio=args.test_ratio,
             seed=args.seed,
             stopwords=args.stopwords,
-            allow_conflicts=args.allow_conflicts,
         )
         return json.dumps(manifest["rows"], ensure_ascii=False)
 
