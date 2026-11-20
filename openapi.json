@@ -1,0 +1,851 @@
+{
+  "openapi": "3.0.2",
+  "info": {
+    "title": "TMF 模型工作台",
+    "version": "2.0.0"
+  },
+  "paths": {
+    "/inference/chart": {
+      "post": {
+        "tags": [
+          "推理"
+        ],
+        "summary": "Chart",
+        "description": "根据标签概率生成 SVG；所有标签均参与绘制，名称按 XML 转义。",
+        "operationId": "chart_inference_chart_post",
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/ChartRequest"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "200": {
+            "description": "Successful Response"
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/inference/models": {
+      "get": {
+        "tags": [
+          "推理"
+        ],
+        "summary": "Models",
+        "description": "查询可推理模型及筛选选项。\n\nReturns:\n    dict: 包含模型列表 ``items``、用途 ``purposes`` 和模型类型\n    ``model_types``；模型列表隐藏内部路径及训练参数。",
+        "operationId": "models_inference_models_get",
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {}
+              }
+            }
+          }
+        }
+      }
+    },
+    "/inference/predict": {
+      "post": {
+        "tags": [
+          "推理"
+        ],
+        "summary": "Infer",
+        "description": "查询模型目录，校验用途后执行分类。\n\nArgs:\n    request (PredictRequest): 已校验的模型 ID、用途和文本。\n\nReturns:\n    dict: 模型标识、名称、预测标签及类别名称。\n\nRaises:\n    HTTPException: 模型不存在时返回 404，用途不匹配时返回 400，\n        模型文件缺失或不可读取时返回 409。",
+        "operationId": "infer_inference_predict_post",
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/PredictRequest"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {}
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/model-registry-options": {
+      "get": {
+        "tags": [
+          "模型管理"
+        ],
+        "summary": "Model Options",
+        "description": "提供用途下拉选项及中英文双向映射。\n\nReturns:\n    包含 purposes、en_to_zh、zh_to_en 的字典。",
+        "operationId": "model_options_model_registry_options_get",
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {}
+              }
+            }
+          }
+        }
+      }
+    },
+    "/model-registry": {
+      "get": {
+        "tags": [
+          "模型管理"
+        ],
+        "summary": "List Registered Models",
+        "description": "分页查询未删除的模型，列表仅携带 test 指标概要。\n\nArgs:\n    page: 从 1 开始的页码。\n    page_size: 每页记录数，允许 1 至 100，默认 10。\n\nReturns:\n    包含 items、page、page_size、total、has_more 的字典。",
+        "operationId": "list_registered_models_model_registry_get",
+        "parameters": [
+          {
+            "name": "page",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "type": "integer",
+              "minimum": 1,
+              "default": 1,
+              "title": "Page"
+            }
+          },
+          {
+            "name": "page_size",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "type": "integer",
+              "maximum": 100,
+              "minimum": 1,
+              "default": 10,
+              "title": "Page Size"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {}
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/model-registry/batch-delete": {
+      "post": {
+        "tags": [
+          "模型管理"
+        ],
+        "summary": "Batch Delete Registered Models",
+        "description": "逐项复用软删除逻辑，返回成功与失败项，部分失败不阻止后续删除。\n\n模型文件不会被永久删除，目录重命名和缓存刷新与单项删除一致。",
+        "operationId": "batch_delete_registered_models_model_registry_batch_delete_post",
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/BatchDeleteRequest"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {}
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/model-registry/delete-all": {
+      "post": {
+        "tags": [
+          "模型管理"
+        ],
+        "summary": "Delete All Registered Models",
+        "description": "软删除请求开始时的全部可用模型，包含所有分页，不永久移除文件。",
+        "operationId": "delete_all_registered_models_model_registry_delete_all_post",
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {}
+              }
+            }
+          }
+        }
+      }
+    },
+    "/model-registry/{model_id}": {
+      "get": {
+        "tags": [
+          "模型管理"
+        ],
+        "summary": "Get Registered Model",
+        "description": "按 id 查询未删除模型及完整 test 结果。\n\nArgs:\n    model_id: 模型登记记录的唯一 id。\n\nReturns:\n    模型详情字典；模型不存在或已删除时抛出 HTTP 404。\n\nRaises:\n    HTTPException: 模型不存在或已删除，状态码 404。",
+        "operationId": "get_registered_model_model_registry__model_id__get",
+        "parameters": [
+          {
+            "name": "model_id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "title": "Model Id"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {}
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        }
+      },
+      "patch": {
+        "tags": [
+          "模型管理"
+        ],
+        "summary": "Update Registered Model",
+        "description": "修改模型名称和用途，名称变更时同步重命名模型目录及更新路径。\n\nArgs:\n    model_id: 模型登记记录的唯一 id。\n    changes: 待修改的 name 和/或 purpose 字段。\n\nReturns:\n    修改后的完整模型记录；模型不可用时抛出 HTTP 404。\n\nRaises:\n    HTTPException: 模型不存在或已删除，状态码 404。",
+        "operationId": "update_registered_model_model_registry__model_id__patch",
+        "parameters": [
+          {
+            "name": "model_id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "title": "Model Id"
+            }
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/ModelUpdate"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {}
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        }
+      },
+      "delete": {
+        "tags": [
+          "模型管理"
+        ],
+        "summary": "Delete Registered Model",
+        "description": "软删除模型，为数据库名称及模型目录同步添加 _del_ 前缀。\n\nArgs:\n    model_id: 模型登记记录的唯一 id。\n\nReturns:\n    包含 id 和 is_deleted=true 的字典；重复删除成功，不删除模型文件。\n\nRaises:\n    HTTPException: 模型不存在，状态码 404。",
+        "operationId": "delete_registered_model_model_registry__model_id__delete",
+        "parameters": [
+          {
+            "name": "model_id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "title": "Model Id"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {}
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/models/{model}/defaults": {
+      "get": {
+        "summary": "Training Defaults",
+        "description": "查询指定模型类型的默认训练参数。\n\nArgs:\n    model: 模型类型标识，如 rf、fasttext 或 bert。\n\nReturns:\n    包含 model 和 params 的字典。",
+        "operationId": "training_defaults_models__model__defaults_get",
+        "parameters": [
+          {
+            "name": "model",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "$ref": "#/components/schemas/ModelKind"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {}
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/health": {
+      "get": {
+        "summary": "Health",
+        "description": "提供服务健康检查。\n\nReturns:\n    固定字典 {\"status\": \"ok\"}。",
+        "operationId": "health_health_get",
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {}
+              }
+            }
+          }
+        }
+      }
+    },
+    "/models": {
+      "get": {
+        "summary": "Models",
+        "description": "提供可训练模型类型及其前端展示选项。\n\nReturns:\n    包含 models 标识列表和 options 选项列表的字典。",
+        "operationId": "models_models_get",
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {}
+              }
+            }
+          }
+        }
+      }
+    },
+    "/train": {
+      "post": {
+        "summary": "Train",
+        "description": "保存训练集和测试集，提交训练任务；sync=true 时等待训练和测试完成。\n\nArgs:\n    train_data: 上传的训练数据文件。\n    test_data: 上传的独立测试数据文件。\n    label_mapping: 必填的原始 label 到类别名称映射文件。\n    model: 模型类型标识，如 rf、fasttext 或 bert。\n    epochs: 可选训练轮数，覆盖默认配置。\n    batch_size: 可选训练批大小，覆盖默认配置。\n    purpose: 训练用途标识或已知中文用途；用于生成名称及保存用途。\n    params: 可选额外超参数 JSON 字符串。\n    dev_ratio: 从训练样本中划出验证集的比例。\n    sync: 是否同步等待训练和测试完成。\n\nReturns:\n    异步返回任务信息；同步返回包含状态、测试指标及错误信息的最终任务字典。\n\nRaises:\n    ValueError: 用途、输入路径或训练参数非法；由接口异常处理器转换为 400。",
+        "operationId": "train_train_post",
+        "requestBody": {
+          "content": {
+            "multipart/form-data": {
+              "schema": {
+                "$ref": "#/components/schemas/Body_train_train_post"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {}
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/jobs": {
+      "get": {
+        "summary": "List Jobs",
+        "description": "查询当前进程内的训练任务，按创建时间倒序返回。\n\nReturns:\n    包含 jobs 列表的字典；服务重启后内存任务不保留。",
+        "operationId": "list_jobs_jobs_get",
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {}
+              }
+            }
+          }
+        }
+      }
+    },
+    "/jobs/{job_id}": {
+      "get": {
+        "summary": "Get Job",
+        "description": "查询指定训练任务的状态、阶段耗时、指标及日志。\n\nArgs:\n    job_id: 训练任务的唯一 id。\n\nReturns:\n    完整任务字典；任务不存在时由异常处理器返回 404。",
+        "operationId": "get_job_jobs__job_id__get",
+        "parameters": [
+          {
+            "name": "job_id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "title": "Job Id"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {}
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/jobs/{job_id}/artifacts": {
+      "get": {
+        "summary": "Get Artifacts",
+        "description": "查询训练任务的模型文件路径及文件大小。\n\nArgs:\n    job_id: 训练任务的唯一 id。\n\nReturns:\n    包含 job_id、status 和 files 的字典。",
+        "operationId": "get_artifacts_jobs__job_id__artifacts_get",
+        "parameters": [
+          {
+            "name": "job_id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "title": "Job Id"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {}
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        }
+      }
+    }
+  },
+  "components": {
+    "schemas": {
+      "BatchDeleteRequest": {
+        "properties": {
+          "ids": {
+            "items": {
+              "type": "string"
+            },
+            "type": "array",
+            "maxItems": 100,
+            "minItems": 1,
+            "title": "Ids"
+          }
+        },
+        "type": "object",
+        "required": [
+          "ids"
+        ],
+        "title": "BatchDeleteRequest",
+        "description": "一次批量删除至多 100 个登记模型。"
+      },
+      "Body_train_train_post": {
+        "properties": {
+          "train_data": {
+            "type": "string",
+            "title": "Train Data",
+            "description": "训练集文件（.arrow/.jsonl/txt/.zip）",
+            "format": "binary"
+          },
+          "test_data": {
+            "type": "string",
+            "title": "Test Data",
+            "description": "测试集文件（同上）",
+            "format": "binary"
+          },
+          "label_mapping": {
+            "type": "string",
+            "title": "Label Mapping",
+            "description": "必填：label 到类别名的 JSON 对象，或每行 label<TAB>类别名的 TXT/TSV",
+            "format": "binary"
+          },
+          "model": {
+            "type": "string",
+            "enum": [
+              "rf",
+              "fasttext",
+              "bert"
+            ],
+            "title": "Model",
+            "description": "训练模型类型，只能是 rf / fasttext / bert"
+          },
+          "epochs": {
+            "title": "Epochs",
+            "description": "选填，不传用 config 默认",
+            "type": "integer",
+            "nullable": true
+          },
+          "batch_size": {
+            "title": "Batch Size",
+            "description": "选填，不传用 config 默认",
+            "type": "integer",
+            "nullable": true
+          },
+          "purpose": {
+            "$ref": "#/components/schemas/Purpose",
+            "description": "必填：训练用途英文标识，GET /model-registry-options 获取中英文选项；用于模型命名"
+          },
+          "params": {
+            "title": "Params",
+            "description": "额外超参 JSON",
+            "type": "string",
+            "nullable": true
+          },
+          "dev_ratio": {
+            "type": "number",
+            "title": "Dev Ratio",
+            "description": "从训练集切验证集的比例",
+            "default": 0.15
+          },
+          "sync": {
+            "type": "boolean",
+            "title": "Sync",
+            "description": "true=同步等结果，false=返回任务 id",
+            "default": false
+          }
+        },
+        "type": "object",
+        "required": [
+          "train_data",
+          "test_data",
+          "label_mapping",
+          "model",
+          "purpose"
+        ],
+        "title": "Body_train_train_post"
+      },
+      "ChartItem": {
+        "properties": {
+          "class_name": {
+            "type": "string",
+            "maxLength": 200,
+            "minLength": 1,
+            "title": "Class Name"
+          },
+          "probability": {
+            "type": "number",
+            "maximum": 1.0,
+            "minimum": 0.0,
+            "title": "Probability"
+          }
+        },
+        "type": "object",
+        "required": [
+          "class_name",
+          "probability"
+        ],
+        "title": "ChartItem",
+        "description": "图表单个标签及其模型输出概率。"
+      },
+      "ChartRequest": {
+        "properties": {
+          "items": {
+            "items": {
+              "$ref": "#/components/schemas/ChartItem"
+            },
+            "type": "array",
+            "maxItems": 500,
+            "minItems": 1,
+            "title": "Items"
+          }
+        },
+        "type": "object",
+        "required": [
+          "items"
+        ],
+        "title": "ChartRequest",
+        "description": "需要绘制的全部标签。"
+      },
+      "HTTPValidationError": {
+        "properties": {
+          "detail": {
+            "items": {
+              "$ref": "#/components/schemas/ValidationError"
+            },
+            "type": "array",
+            "title": "Detail"
+          }
+        },
+        "type": "object",
+        "title": "HTTPValidationError"
+      },
+      "ModelKind": {
+        "type": "string",
+        "enum": [
+          "rf",
+          "fasttext",
+          "bert"
+        ],
+        "title": "ModelKind",
+        "description": "训练类型只有这三种；接口层用它生成下拉选项（OpenAPI enum）。"
+      },
+      "ModelUpdate": {
+        "properties": {
+          "name": {
+            "title": "Name",
+            "type": "string",
+            "maxLength": 200,
+            "minLength": 1,
+            "nullable": true
+          },
+          "purpose": {
+            "title": "Purpose",
+            "type": "string",
+            "maxLength": 200,
+            "minLength": 1,
+            "nullable": true
+          }
+        },
+        "additionalProperties": false,
+        "type": "object",
+        "title": "ModelUpdate"
+      },
+      "PredictRequest": {
+        "properties": {
+          "model_id": {
+            "type": "string",
+            "maxLength": 200,
+            "minLength": 1,
+            "title": "Model Id"
+          },
+          "purpose": {
+            "type": "string",
+            "maxLength": 200,
+            "minLength": 1,
+            "title": "Purpose"
+          },
+          "text": {
+            "type": "string",
+            "maxLength": 20000,
+            "minLength": 1,
+            "title": "Text"
+          }
+        },
+        "additionalProperties": false,
+        "type": "object",
+        "required": [
+          "model_id",
+          "purpose",
+          "text"
+        ],
+        "title": "PredictRequest",
+        "description": "单条文本分类请求，拒绝未声明的字段。\n\nAttributes:\n    model_id (str): 登记模型 ID，长度为 1 到 200。\n    purpose (str): 用途标识，须与模型登记用途一致，长度为 1 到 200。\n    text (str): 待分类文本，长度为 1 到 20000，不允许仅包含空白。"
+      },
+      "Purpose": {
+        "type": "string",
+        "enum": [
+          "news",
+          "intent",
+          "sentiment",
+          "topic",
+          "spam",
+          "risk",
+          "content_safety",
+          "question",
+          "ticket",
+          "complaint",
+          "language",
+          "domain",
+          "relevance",
+          "duplicate",
+          "others"
+        ],
+        "title": "Purpose"
+      },
+      "ValidationError": {
+        "properties": {
+          "loc": {
+            "items": {
+              "anyOf": [
+                {
+                  "type": "string"
+                },
+                {
+                  "type": "integer"
+                }
+              ]
+            },
+            "type": "array",
+            "title": "Location"
+          },
+          "msg": {
+            "type": "string",
+            "title": "Message"
+          },
+          "type": {
+            "type": "string",
+            "title": "Error Type"
+          },
+          "input": {
+            "title": "Input"
+          },
+          "ctx": {
+            "type": "object",
+            "title": "Context"
+          }
+        },
+        "type": "object",
+        "required": [
+          "loc",
+          "msg",
+          "type"
+        ],
+        "title": "ValidationError"
+      }
+    }
+  },
+  "servers": [
+    {
+      "url": "http://127.0.0.1:8008",
+      "description": "本机训练服务"
+    }
+  ]
+}

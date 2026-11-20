@@ -1,0 +1,34 @@
+<!doctype html>
+<html lang="zh-CN">
+<head>
+<meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+<title>训练设置 · TMF</title>
+<link rel="stylesheet" href="/ui/shared.css?v=20261120-nav13">
+<link rel="stylesheet" href="/ui/training/style.css?v=20261120-8">
+<script src="/ui/training/app.js?v=20261120-3" defer></script>
+</head>
+<body class="training-page"><div class="training-wallpaper" aria-hidden="true"><span></span><span></span><span></span><span></span><span></span><span></span></div>
+<header class="workspace-toolbar"><nav class="workspace-tabs" aria-label="工作台导航"><a href="/inference">模型推理</a><a href="/training" aria-current="page">训练工作室</a><a href="/">模型管理</a></nav></header>
+<main>
+<div class="heading"><div><p class="eyebrow">MODEL TRAINING</p><h1>训练设置</h1><p class="muted">选择模型、准备数据，开始一次新的训练。</p></div></div>
+<form id="training-form">
+<div class="layout"><div class="sections">
+<section><div class="section-head"><h2>模型与任务</h2><span>定义本次训练</span></div>
+<div class="grid"><label>训练模型类型<select id="model" name="model" required disabled></select></label><label>训练用途<select id="purpose" name="purpose" required disabled></select></label></div><p id="model-description" class="hint"></p>
+</section>
+<details class="training-disclosure" id="dataset-panel" open><summary class="disclosure-heading"><h2>数据集</h2><span>训练集与测试集独立上传</span></summary><div class="disclosure-body">
+<div class="grid dataset-grid">
+<label class="upload">训练集 <span class="file-icon">＋</span><strong>选择训练集文件</strong><span class="hint">用于学习模型参数</span><input type="file" name="train_data" required accept=".arrow,.jsonl,.txt,.tsv,.csv,.zip"><span class="file-info">尚未选择文件</span></label>
+<label class="upload">测试集 <span class="file-icon">＋</span><strong>选择测试集文件</strong><span class="hint">用于训练完成后的独立评估</span><input type="file" name="test_data" required accept=".arrow,.jsonl,.txt,.tsv,.csv,.zip"><span class="file-info">尚未选择文件</span></label>
+<label class="upload">Label 与类别映射（必填）<span class="file-icon">＋</span><strong>选择映射文件</strong><span class="hint">JSON 对象如 {"0":"体育","1":"财经"}，或 TXT/TSV 每行 label + 制表符 + 类别名</span><input type="file" name="label_mapping" required accept=".json,.txt,.tsv"><span class="file-info">尚未选择文件</span></label>
+</div><p class="hint">支持 Arrow、JSONL、TXT、TSV、CSV 和 ZIP。JSONL 使用 text / label 字段；文本文件使用「文本 + 制表符 + 标签」。</p>
+<details><summary>数据处理设置</summary><div class="grid extra"><label>验证集比例<input name="dev_ratio" type="number" min="0" max="0.99" step="0.01" value="0.15" required><small>从训练集中划分，测试集保持独立</small></label></div></details>
+</div></details>
+<details class="training-disclosure" id="hyperparameter-panel" open><summary class="disclosure-heading"><div><h2>训练超参数</h2><p class="hint">从对应模型的 config 读取，可按需修改。</p></div></summary><div class="disclosure-body"><div class="parameter-actions"><button id="reset" type="button" class="secondary parameter-reset" aria-label="恢复默认训练参数" title="恢复默认训练参数" disabled><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M20 7v5h-5M4 17v-5h5"/><path d="M6.1 7a7 7 0 0 1 11.6-1L20 9M4 15l2.3 3A7 7 0 0 0 17.9 17"/></svg></button></div><p id="parameter-hint" class="hint" role="status" hidden></p><div id="parameters" class="grid" aria-live="polite"></div></div></details>
+</div>
+<aside><div class="aside-label">本次训练</div><h2 id="summary-model">等待加载</h2><p class="muted">数据处理 → 模型训练 → 测试评估</p><dl><dt>训练集</dt><dd id="summary-train">未选择</dd><dt>测试集</dt><dd id="summary-test">未选择</dd><dt>类别映射</dt><dd id="summary-mapping">未选择</dd><dt>超参数</dt><dd id="summary-params">等待加载</dd></dl><div class="notice">训练将使用当前页面中的参数；恢复默认可重新应用 config 配置。</div><button id="start" type="submit" disabled>开始训练</button><p class="hint">提交后可在下方查看任务进度和评估结果。</p></aside></div>
+</form>
+<section id="status-panel" class="status-panel" aria-live="polite"><div class="section-head"><h2>任务状态</h2><button type="button" class="secondary" id="retry" hidden>重新查询</button></div><p id="status" role="status">正在加载模型与默认参数…</p><div id="metrics" class="metrics"></div><div id="training-progress" hidden><label for="training-progress-bar" id="training-progress-label">等待训练</label><progress id="training-progress-bar" max="100" aria-labelledby="training-progress-label" style="width:100%;height:18px;accent-color:#2563eb"></progress></div><details id="logs-panel" hidden open><summary>训练日志</summary><ol id="logs" class="training-log"></ol></details></section>
+</main>
+</body></html>
+

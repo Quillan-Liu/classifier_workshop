@@ -1,0 +1,60 @@
+# Local environments, editor settings and caches
+__pycache__/
+*.py[cod]
+.pytest_cache/
+.mypy_cache/
+.ruff_cache/
+.idea/
+.vscode/
+.venv/
+venv/
+env/
+node_modules/
+.DS_Store
+Thumbs.db
+
+# Credentials and local configuration
+.env
+.env.*
+!.env.example
+*.pem
+*.key
+credentials*.json
+secrets*.json
+# These existing local scripts contain hard-coded credentials.
+/LLM/test.py
+/LLM/大模型API调用.py
+
+# Datasets, downloaded models and generated runtime files
+/data/
+/datasets/
+/models/
+/runs/
+/logs/*
+!/logs/README.md
+/ft/final_data/
+/rf/result/
+**/data/
+**/save_model/
+**/save_models/
+**/training_output/
+**/checkpoint-*/
+*.log
+*.sqlite
+*.sqlite3
+*.sqlite3-*
+*.db
+*.pt
+*.pth
+*.bin
+*.safetensors
+*.joblib
+*.pkl
+*.pickle
+*.onnx
+*.h5
+*.msgpack
+
+# Redis debug symbols and duplicate download archive
+/tools/redis/*.pdb
+/tools/redis/redis.zip

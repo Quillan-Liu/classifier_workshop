@@ -1,0 +1,26 @@
+--extra-index-url https://download.pytorch.org/whl/cu128
+transformers==4.53.1
+jieba==0.42.1
+fasttext-wheel
+requests
+pandas
+flask[async]==3.1.1
+asgiref==3.12.1
+scikit-learn
+icecream
+mysql-connector-python
+numpy==1.26.4
+tqdm
+dotenv
+openai
+langchain_openai
+gensim
+matplotlib==3.8.0
+torchviz
+graphviz
+torch==2.7.1+cu128
+torchvision==0.22.1+cu128
+torchaudio==2.7.1+cu128
+accelerate>=0.26.0
+
+redis>=5,<7

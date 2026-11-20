@@ -1,0 +1,42 @@
+/* 背景沿完整色谱缓慢循环，按钮使用固定颜色。 */
+@property --studio-hue{syntax:"<number>";inherits:true;initial-value:0}
+@keyframes studio-spectrum{from{--studio-hue:0}to{--studio-hue:360}}
+body{position:relative;isolation:isolate;background:#f5f4f8;min-height:100dvh;animation:studio-spectrum 64s linear infinite}
+.training-wallpaper{position:fixed;inset:0;z-index:-1;overflow:hidden;pointer-events:none;background:linear-gradient(135deg,hsl(var(--studio-hue) 35% 96%),hsl(calc(var(--studio-hue) + 100) 35% 95%) 60%,hsl(calc(var(--studio-hue) + 220) 35% 96%))}
+.training-wallpaper span{position:absolute;left:var(--left);top:var(--top);width:clamp(420px,65vw,1100px);aspect-ratio:1;border-radius:45% 55% 62% 38%;background:radial-gradient(ellipse,var(--color) 0%,var(--color) 25%,transparent 72%);filter:blur(52px);opacity:0;will-change:transform,opacity;animation:studio-flow 52s linear infinite;animation-delay:var(--delay)}
+.training-wallpaper span:nth-child(1){--color:hsl(calc(var(--studio-hue) + 0) 62% 73%);--left:-20vw;--top:5vh;--delay:-4s}
+.training-wallpaper span:nth-child(2){--color:hsl(calc(var(--studio-hue) + 60) 62% 73%);--left:0vw;--top:20vh;--delay:-13s}
+.training-wallpaper span:nth-child(3){--color:hsl(calc(var(--studio-hue) + 120) 62% 73%);--left:-35vw;--top:-10vh;--delay:-22s}
+.training-wallpaper span:nth-child(4){--color:hsl(calc(var(--studio-hue) + 180) 62% 73%);--left:5vw;--top:30vh;--delay:-31s}
+.training-wallpaper span:nth-child(5){--color:hsl(calc(var(--studio-hue) + 240) 62% 73%);--left:-10vw;--top:0vh;--delay:-40s}
+.training-wallpaper span:nth-child(6){--color:hsl(calc(var(--studio-hue) + 300) 62% 73%);--left:15vw;--top:15vh;--delay:-49s}
+@keyframes studio-flow{0%{transform:translate3d(-45vw,65vh,0) scale(.95);opacity:0}18%{opacity:.64}50%{opacity:.7}82%{opacity:.64}100%{transform:translate3d(85vw,-85vh,0) scale(1.12);opacity:0}}
+section,aside{background:rgba(255,255,255,.62);border-color:rgba(255,255,255,.8);backdrop-filter:blur(24px);-webkit-backdrop-filter:blur(24px);box-shadow:0 8px 32px #644a4510}
+.upload{background:rgba(255,255,255,.4)}
+input,select{background-color:rgba(255,255,255,.75)}
+@media(max-width:600px){.training-wallpaper span{filter:blur(36px)}}
+@media(prefers-reduced-motion:reduce){.training-wallpaper span{animation:none;opacity:.4;will-change:auto}.training-wallpaper span:nth-child(even){transform:translate(20vw,-15vh)}}
+/* 淡紫按钮：悬停轻微放大并产生柔和阴影。 */
+.training-page button{color:#403348;background:#c5b7d0;border:1px solid #c5b7d0;box-shadow:0 2px 6px #70516f0a;transition:background-color .3s ease,border-color .3s ease,box-shadow .3s ease,transform .3s ease}
+.training-page button:not(:disabled):is(:hover,:focus-visible){background:#b9a8c7;border-color:#b9a8c7;transform:scale(1.025);box-shadow:0 4px 12px #5842661c}
+.training-page button:not(:disabled):active{transform:scale(1);box-shadow:0 2px 5px #58426612}
+.training-page button:disabled{opacity:.5;box-shadow:none}
+@media(prefers-reduced-motion:reduce){body{animation:none}.training-page button{transition:none}}
+
+.dataset-grid{grid-template-columns:minmax(0,1fr)}
+.training-disclosure{margin:0;padding:26px;border:1px solid rgba(255,255,255,.8);border-radius:14px;background:rgba(255,255,255,.62);backdrop-filter:blur(24px);-webkit-backdrop-filter:blur(24px);box-shadow:0 8px 32px #644a4510}
+.disclosure-heading{display:flex;align-items:center;gap:16px;list-style:none;color:inherit;padding:0;cursor:pointer}
+.disclosure-heading::-webkit-details-marker{display:none}
+.disclosure-heading>span{font-size:13px;color:#758598}
+.disclosure-heading::after{content:"";width:8px;height:8px;flex-shrink:0;margin-left:auto;border-right:1.5px solid #758598;border-bottom:1.5px solid #758598;transform:rotate(45deg);transition:transform .25s ease}
+.training-disclosure[open]>.disclosure-heading::after{transform:rotate(225deg)}
+.disclosure-body{padding-top:24px}.parameter-actions{display:flex;justify-content:flex-end;margin-bottom:18px}
+@media(max-width:560px){.training-disclosure{padding:20px}.disclosure-heading>span{display:none}}
+@media(prefers-reduced-motion:reduce){.disclosure-heading::after{transition:none}}
+
+.training-page #reset{display:grid;place-items:center;width:38px;height:38px;min-height:38px;padding:0;border-radius:11px}
+#reset svg{display:block;width:20px;height:20px;transition:transform .3s ease}
+#reset:not(:disabled):hover svg{transform:rotate(24deg)}
+@media(prefers-reduced-motion:reduce){#reset svg{transition:none}#reset:not(:disabled):hover svg{transform:none}}
+
+@media(prefers-reduced-motion:reduce){.training-page button:not(:disabled):is(:hover,:focus-visible){transform:none}}

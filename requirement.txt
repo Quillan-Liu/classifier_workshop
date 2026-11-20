@@ -1,0 +1,2 @@
+# Install all project dependencies, including the Redis client.
+-r requirements.txt
